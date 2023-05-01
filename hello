@@ -1,0 +1,240 @@
+1.  wo o wg b wb g wb b
+    wg g wo b wb o wb b
+    
+    
+  ------------------------------------------------------------------------------------------------   
+9. Go back N PROTOCOL
+
+          #include<bits/stdc++.h>
+          #include<ctime>
+          #define ll long long int
+          using namespace std;
+          void transmission(ll & i, ll & N, ll & tf, ll & tt) {
+           while (i <= tf) {
+           int z = 0;
+           for (int k = i; k < i + N && k <= tf; k++) {
+           cout << "Sending Frame " << k << "..." << endl;
+           tt++;
+           }
+           for (int k = i; k < i + N && k <= tf; k++) {
+           int f = rand() % 2;
+           if (!f) {
+           cout << "Acknowledgment for Frame " << k << "..." << endl;
+           z++;
+           } else {
+           cout << "Timeout!! Frame Number : " << k << " Not Received" << endl;
+           cout << "Retransmitting Window..." << endl;
+           break;
+           }
+           }
+           cout << "\n";
+           i = i + z;
+           }
+          }
+          int main() {
+           ll tf, N, tt = 0;
+           srand(time(NULL));
+           cout << "Enter the Total number of frames : ";
+           cin >> tf;
+           cout << "Enter the Window Size : ";
+           cin >> N;
+           ll i = 1;
+           transmission(i, N, tf, tt);
+           cout << "Total number of frames which were sent and resent are : " << tt <<
+           endl;
+           return 0;
+          }
+          
+          
+     ------------------------------------------------------------------------------------------------      
+          
+  10. SELECTIVE ARQ PROTOCOL
+  
+      #include<iostream>
+      using namespace std;
+      int main()
+      {
+       int w,i,f,frames[50];
+       cout<<"Enter window size: ";
+       cin>>w;
+       cout<<"\nEnter number of frames to transmit: ";
+       cin>>f;
+       cout<<"\nEnter "<<f<<" frames: ";
+       for(i=1;i<=f;i++)
+       cin>>frames[i];
+       cout<<"\nWith sliding window protocol the frames will be sent in the following manner (assuming no 
+      corruption of frames)\n\n";
+       cout<<"After sending "<<w<<" frames at each stage sender waits for acknowledgement sent by the 
+      receiver\n\n";
+       for(i=1;i<=f;i++)
+       {
+       if(i%w==0)
+       {
+       cout<<frames[i]<<"\n";
+       cout<<"Acknowledgement of above frames sent is received by sender\n\n";
+       }
+       else
+       cout<<frames[i]<<" ";
+       }
+       if(f%w!=0)
+       cout<<"\nAcknowledgement of above frames sent is received by sender\n";
+       return 0;
+      }
+     
+ ------------------------------------------------------------------------------------------------     
+     
+ 11.    SOCKET PROGRAMMING
+      // CLIENT // Client.java
+          import java.io.*;
+          import java.net.*;
+          class Client{
+          public static void main(String args[]){
+          String data;
+          Socket socket1;
+          DataInputStream key_in=new DataInputStream(System.in);
+          DataInputStream s_in;
+          PrintStream s_out;
+          System.out.println("Client:");
+          try{
+          socket1=new Socket("127.0.0.1",9000);
+          s_in=new DataInputStream(socket1.getInputStream());
+          s_out=new PrintStream(socket1.getOutputStream());
+          while(true){
+          data=key_in.readLine();
+          if(data.charAt(0)=='Q') break;
+          s_out.println(data);
+          System.out.println("Client: "+s_in.readLine());
+          }
+          socket1.close();
+          }
+          catch(Exception e){}
+          }
+          }
+          
+          
+        // SERVER // Server. Java
+          import java.io.*;
+          import java.net.*;
+          class Server {
+          static Socket socket1;
+          static DataInputStream s_in;
+          static PrintStream s_out;
+          public static void main(String args[]) throws IOException{
+          String data="";
+          ServerSocket sc;
+          System.out.println("Server:");
+          sc=new ServerSocket(9000);
+          while(true){
+          try{
+          socket1=sc.accept();
+          s_in=new DataInputStream(socket1.getInputStream());
+          s_out=new PrintStream(socket1.getOutputStream());
+          }
+          catch(IOException e){}
+          try{
+          while(!(data.equals("exit"))){
+          data=s_in.readLine();
+          if(data==null) {
+          System.out.println("Server: ");
+          break;
+          }
+          s_out.println(data);
+          System.out.println(data);
+          }
+          socket1.close();
+          }
+          catch(IOException e){}
+          }
+          }
+          }
+
+------------------------------------------------------------------------------------------------      
+12. STOP AND WAIT PROTOCOL
+
+
+
+        #include<iostream>
+        #include <time.h>
+        #include <cstdlib>
+        #include<ctime>
+        #include <unistd.h>
+        using namespace std;
+        class timer {
+           private:
+            unsigned long begTime;
+           public:
+            void start() {
+             begTime = clock();
+            }
+        unsigned long elapsedTime() {
+             return ((unsigned long) clock() - begTime) / CLOCKS_PER_SEC;
+           }
+           bool isTimeout(unsigned long seconds) {
+             return seconds >= elapsedTime();
+            }
+        };
+        int main()
+        {
+         int frames[] = {1,2,3,4,5,6,7,8,9,10};
+         unsigned long seconds = 5;
+         srand(time(NULL));
+         timer t;
+         cout<<"Sender has to send frames : ";
+         for(int i=0;i<10;i++)
+            cout<<frames[i]<<" ";
+         cout<<endl;
+         int count = 0;
+         bool delay = false;
+         cout<<endl<<"Sender\t\t\t\t\tReceiver"<<endl;
+         do
+         {
+            bool timeout = false;
+            cout<<"Sending Frame : "<<frames[count];
+            cout.flush();
+            cout<<"\t\t";
+            t.start();
+            if(rand()%2)
+            {
+                int to = 24600 + rand()%(64000 - 24600)  + 1;
+                for(int i=0;i<64000;i++)
+                    for(int j=0;j<to;j++) {}
+            }
+            if(t.elapsedTime() <= seconds)
+            {
+                cout<<"Received Frame : "<<frames[count]<<" ";
+                if(delay)
+                {
+                    cout<<"Duplicate";
+                    delay = false;
+                }
+                cout<<endl;
+                count++;
+            }
+            else
+            {
+                cout<<"---"<<endl;
+                cout<<"Timeout"<<endl;
+                timeout = true;
+            }
+            t.start();
+            if(rand()%2 || !timeout)
+            {
+                int to = 24600 + rand()%(64000 - 24600)  + 1;
+                for(int i=0;i<64000;i++)
+                    for(int j=0;j<to;j++) {}
+                if(t.elapsedTime() > seconds )
+                {
+                    cout<<"Delayed Ack"<<endl;
+                    count--;
+                    delay = true;
+                }
+                else if(!timeout)
+                    cout<<"Acknowledgement : "<<frames[count]-1<<endl;
+            }
+         }
+         while(count!=10);
+         return 0;
+        }
+
+
+          
